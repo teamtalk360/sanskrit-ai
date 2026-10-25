@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.openai.com https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'">
   <title>Sanskrit AI Workspace</title>
   <meta name="description" content="A simple workspace for Sanskrit and Telugu chats and source notes. Works offline. Everything stays on your device.">
 
@@ -43,6 +44,7 @@
           <div class="menu-wrap">
             <button class="icon-btn" id="menuBtn" type="button" aria-label="Menu" title="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="menuPanel">⋯</button>
             <div class="menu-panel" id="menuPanel" role="menu" hidden>
+              <button type="button" role="menuitem" id="menuSettings">Settings – Connect AI</button>
               <button type="button" role="menuitem" id="menuInstall">Install app</button>
               <button type="button" role="menuitem" id="menuExport">Download my data (backup)</button>
               <button type="button" role="menuitem" id="menuAbout">About</button>
@@ -94,7 +96,7 @@
         <div class="source-list" id="sourceList" aria-live="polite"></div>
       </div>
 
-      <p class="footer-note">Everything is saved only on this device. AI replies are not connected yet.</p>
+      <p class="footer-note" id="footerNote">Everything is saved only on this device. AI replies are not connected yet.</p>
     </section>
 
     <!-- ============ CHAT VIEW ============ -->
@@ -102,16 +104,66 @@
       <header class="chat-header">
         <button class="icon-btn back-btn" id="backBtn" type="button" aria-label="Back to chats">←</button>
         <h2 class="chat-view-title" id="chatTitle" tabindex="-1">Chat</h2>
+        <button class="icon-btn" id="downloadDocBtn" type="button" aria-label="Download as Word doc" title="Download as Word doc">⤓</button>
         <button class="icon-btn" id="renameBtn" type="button" aria-label="Rename chat" title="Rename">✎</button>
         <button class="icon-btn" id="deleteChatBtn" type="button" aria-label="Delete chat" title="Delete">🗑</button>
       </header>
-      <div class="ai-note" role="note">AI replies are not connected yet. Your messages are saved on this device only.</div>
+      <div class="ai-note" id="aiNote" role="note">AI replies are not connected yet. Your messages are saved on this device only.</div>
       <div class="messages" id="messages" aria-live="polite" aria-label="Messages"></div>
       <form class="composer" id="composer" autocomplete="off">
         <label class="visually-hidden" for="messageInput">Message</label>
         <textarea id="messageInput" rows="1" placeholder="Type a message…" enterkeyhint="send"></textarea>
         <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">↑</button>
       </form>
+    </section>
+
+    <!-- ============ SETTINGS VIEW ============ -->
+    <section id="settingsView" class="view" aria-label="Settings" hidden>
+      <header class="chat-header">
+        <button class="icon-btn back-btn" id="settingsBackBtn" type="button" aria-label="Back">←</button>
+        <h2 class="chat-view-title" id="settingsTitle" tabindex="-1">Settings</h2>
+      </header>
+      <div class="settings-body">
+        <h3 class="settings-h">Connect AI (OpenAI)</h3>
+        <p class="settings-p">Paste your OpenAI <strong>API key</strong> to get real AI replies. A ChatGPT login cannot be used here; the API key comes from <span class="nowrap">platform.openai.com</span> (see “How do I get an API key?” below).</p>
+        <div class="key-note" role="note"><strong>Your key stays on this device.</strong> Do not enter patient information.</div>
+        <form id="settingsForm" class="source-form" autocomplete="off">
+          <label for="apiKeyInput" class="field-label">OpenAI API key</label>
+          <div class="key-row">
+            <input id="apiKeyInput" class="text-input" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="sk-…" aria-describedby="keyStatus">
+            <button type="button" id="toggleKeyBtn" class="secondary-btn" aria-pressed="false" aria-label="Show key">Show</button>
+          </div>
+          <p class="field-hint" id="keyStatus">No key saved.</p>
+
+          <label for="modelInput" class="field-label">Model</label>
+          <input id="modelInput" class="text-input" type="text" list="modelList" value="gpt-4o" autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="modelHint">
+          <datalist id="modelList">
+            <option value="gpt-4o"></option>
+            <option value="gpt-4o-mini"></option>
+            <option value="gpt-4.1"></option>
+            <option value="gpt-4.1-mini"></option>
+          </datalist>
+          <p class="field-hint" id="modelHint">Default is gpt-4o. You can type another OpenAI model name if you like (for example gpt-4o-mini, which is cheaper).</p>
+
+          <div class="btn-row">
+            <button type="submit" class="primary-btn" id="saveSettingsBtn">Save</button>
+            <button type="button" class="secondary-btn" id="testBtn">Test connection</button>
+            <button type="button" class="link-btn danger" id="removeKeyBtn">Remove key</button>
+          </div>
+          <p class="test-result" id="testResult" role="status" aria-live="polite"></p>
+        </form>
+
+        <details class="help">
+          <summary>How do I get an API key?</summary>
+          <ol>
+            <li>Go to <span class="nowrap">platform.openai.com</span> and sign in (you can use the same email as ChatGPT).</li>
+            <li>Open <strong>Settings → Billing</strong> and add a payment method or prepaid credit. The API is pay-per-use and separate from a ChatGPT Plus subscription.</li>
+            <li>Open <strong>API keys</strong> and click <strong>Create new secret key</strong>.</li>
+            <li>Copy the key (it starts with <code>sk-</code>), paste it above, and tap <strong>Test connection</strong>.</li>
+          </ol>
+          <p>Only messages you send in a chat go to OpenAI (api.openai.com). Your key is never sent anywhere else.</p>
+        </details>
+      </div>
     </section>
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>

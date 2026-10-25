@@ -1,7 +1,7 @@
 /* Sanskrit AI Workspace – service worker.
    App shell: cache-first. Google Fonts: stale-while-revalidate, cached at runtime.
    If fonts cannot be fetched, the CSS falls back to system fonts, so the app still works offline. */
-const VERSION = 'v1.0.0';
+const VERSION = 'v2.0.0';
 const SHELL_CACHE = `sanskrit-ai-shell-${VERSION}`;
 const FONT_CACHE = `sanskrit-ai-fonts-${VERSION}`;
 const SHELL_ASSETS = [
@@ -21,7 +21,8 @@ const FONTS_CSS_URL = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devana
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(SHELL_CACHE);
-    await cache.addAll(SHELL_ASSETS);
+    // cache: 'reload' bypasses the browser's HTTP cache so an update never stores stale files.
+    await cache.addAll(SHELL_ASSETS.map((u) => new Request(u, { cache: 'reload' })));
     // Best effort: pre-cache the fonts stylesheet. Never fail install if offline/blocked.
     try {
       const fontCache = await caches.open(FONT_CACHE);
