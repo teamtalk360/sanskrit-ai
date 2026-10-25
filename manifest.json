@@ -1,0 +1,18 @@
+{
+  "short_name": "SanskritAI",
+  "name": "Sanskrit AI Workspace",
+  "description": "A simple workspace for Sanskrit and Telugu chats and source notes. Works offline.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "icons": [
+    { "src": "./icons/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "./icons/icon-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ],
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "lang": "en"
+}

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sanskrit AI Workspace</title>
+  <meta name="description" content="A simple workspace for Sanskrit and Telugu chats and source notes. Works offline. Everything stays on your device.">
+
+  <!-- Universal Web App Tags -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+
+  <!-- Apple iOS Safari Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SanskritAI">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+  <!-- Universal Fonts for Devanagari and Telugu Scripts (system fonts are used if these cannot load) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Telugu:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ============ HOME VIEW ============ -->
+    <section id="homeView" class="view" aria-label="Workspace">
+      <!-- Top Bar -->
+      <header class="app-header">
+        <div class="header-left">
+          <span class="folder-icon" aria-hidden="true">📁</span>
+          <h1 class="header-title">Sanskrit</h1>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" id="shareBtn" type="button" aria-label="Share" title="Share">↗</button>
+          <div class="menu-wrap">
+            <button class="icon-btn" id="menuBtn" type="button" aria-label="Menu" title="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="menuPanel">⋯</button>
+            <div class="menu-panel" id="menuPanel" role="menu" hidden>
+              <button type="button" role="menuitem" id="menuInstall">Install app</button>
+              <button type="button" role="menuitem" id="menuExport">Download my data (backup)</button>
+              <button type="button" role="menuitem" id="menuAbout">About</button>
+              <button type="button" role="menuitem" id="menuReset" class="danger">Reset to sample data</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Install hint (shown only when relevant) -->
+      <div class="install-hint" id="installHint" hidden role="region" aria-label="Install this app">
+        <span class="install-text" id="installText">Install this app for quick, offline access.</span>
+        <button type="button" class="install-btn" id="installBtn" hidden>Install</button>
+        <button type="button" class="hint-close" id="installClose" aria-label="Dismiss install hint">×</button>
+      </div>
+
+      <!-- Search / New Chat Bar -->
+      <div class="action-bar">
+        <button class="new-chat-btn" id="newChatBtn" type="button">
+          <span class="plus-icon" aria-hidden="true">+</span> New chat in Sanskrit
+        </button>
+      </div>
+
+      <!-- Filter Tabs -->
+      <nav class="nav-tabs" role="tablist" aria-label="Sections">
+        <button class="tab-btn active" type="button" role="tab" id="tab-chats" data-tab="chats" aria-selected="true" aria-controls="chatsPanel">Chats</button>
+        <button class="tab-btn" type="button" role="tab" id="tab-sources" data-tab="sources" aria-selected="false" aria-controls="sourcesPanel">Sources</button>
+      </nav>
+
+      <!-- Chats panel -->
+      <div id="chatsPanel" role="tabpanel" aria-labelledby="tab-chats">
+        <label class="visually-hidden" for="searchInput">Search chats</label>
+        <input type="search" id="searchInput" class="search-input" placeholder="Search chats…" autocomplete="off">
+        <!-- Thread List -->
+        <main class="chat-list" id="chatList" aria-live="polite">
+          <!-- Chat items are rendered here -->
+        </main>
+      </div>
+
+      <!-- Sources panel -->
+      <div id="sourcesPanel" role="tabpanel" aria-labelledby="tab-sources" hidden>
+        <form id="sourceForm" class="source-form" autocomplete="off">
+          <label for="sourceTitle" class="field-label">Title</label>
+          <input id="sourceTitle" class="text-input" type="text" maxlength="200" placeholder="e.g. గణేశ స్తోత్రం / श्लोकाः" required>
+          <label for="sourceText" class="field-label">Source text or note</label>
+          <textarea id="sourceText" class="text-input" rows="5" placeholder="Paste a verse, a passage, or write a note…" required></textarea>
+          <button type="submit" class="primary-btn">Save source</button>
+        </form>
+        <div class="source-list" id="sourceList" aria-live="polite"></div>
+      </div>
+
+      <p class="footer-note">Everything is saved only on this device. AI replies are not connected yet.</p>
+    </section>
+
+    <!-- ============ CHAT VIEW ============ -->
+    <section id="chatView" class="view chat-view" aria-label="Chat" hidden>
+      <header class="chat-header">
+        <button class="icon-btn back-btn" id="backBtn" type="button" aria-label="Back to chats">←</button>
+        <h2 class="chat-view-title" id="chatTitle" tabindex="-1">Chat</h2>
+        <button class="icon-btn" id="renameBtn" type="button" aria-label="Rename chat" title="Rename">✎</button>
+        <button class="icon-btn" id="deleteChatBtn" type="button" aria-label="Delete chat" title="Delete">🗑</button>
+      </header>
+      <div class="ai-note" role="note">AI replies are not connected yet. Your messages are saved on this device only.</div>
+      <div class="messages" id="messages" aria-live="polite" aria-label="Messages"></div>
+      <form class="composer" id="composer" autocomplete="off">
+        <label class="visually-hidden" for="messageInput">Message</label>
+        <textarea id="messageInput" rows="1" placeholder="Type a message…" enterkeyhint="send"></textarea>
+        <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">↑</button>
+      </form>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
